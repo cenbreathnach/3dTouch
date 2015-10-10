@@ -12,11 +12,57 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var selectedShortcutItem:UIApplicationShortcutItem?
+    
+    struct ShortcutTypes {
+        static let first = "ie.cbreathnach.firsttab"
+        static let second = "ie.cbreathnach.secondtab"
+        static let third = "ie.cbreathnach.thirdtab"
+    }
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
-        return true
+        var performShortcut = true
+        
+        if let shortcut = launchOptions?[UIApplicationLaunchOptionsShortcutItemKey] as? UIApplicationShortcutItem {
+            self.selectedShortcutItem = shortcut
+            performShortcut = false
+        }
+        return performShortcut
+    }
+    
+    private func handleShortcutItem(shortcutItem:UIApplicationShortcutItem) -> Bool {
+        var handeledShortcutItem = false
+        switch shortcutItem.type{
+        case ShortcutTypes.first:
+            if let tabBarController = self.window?.rootViewController as? UITabBarController {
+                tabBarController.selectedIndex = 0
+            }
+            handeledShortcutItem = true
+            break
+        case ShortcutTypes.second:
+            if let tabBarController = self.window?.rootViewController as? UITabBarController {
+                tabBarController.selectedIndex = 1
+            }
+            handeledShortcutItem = true
+            break
+        case ShortcutTypes.third:
+            if let tabBarController = self.window?.rootViewController as? UITabBarController {
+                tabBarController.selectedIndex = 2
+            }
+            handeledShortcutItem = true
+            break
+        default:
+            break
+        }
+        
+        return handeledShortcutItem
+    }
+    
+    func application(application: UIApplication, performActionForShortcutItem shortcutItem: UIApplicationShortcutItem, completionHandler: (Bool) -> Void) {
+        let handeled = handleShortcutItem(shortcutItem)
+        completionHandler(handeled)
     }
 
     func applicationWillResignActive(application: UIApplication) {
@@ -34,6 +80,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(application: UIApplication) {
+        if let shortcut = selectedShortcutItem {
+            handleShortcutItem(shortcut)
+        }
+        selectedShortcutItem = nil
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
 
